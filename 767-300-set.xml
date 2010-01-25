@@ -229,7 +229,7 @@ Service Ceiling: 39,000ft
        <command>nasal</command>
        <script>
 	  var mal = gui.Dialog.new("/sim/gui/dialogs/Boeing747/menu/dialog", 
-                                                              "Aircraft/767-300/Dialogs/Airportoperations-dialog.xml");
+                                                              "Aircraft/767-300/Dialogs/airportoperations-dialog.xml");
         mal.open();
        </script>
       </binding>
@@ -241,7 +241,7 @@ Service Ceiling: 39,000ft
        <command>nasal</command>
        <script>
 	  var mal = gui.Dialog.new("/sim/gui/dialogs/Boeing747/menu/dialog", 
-                                                              "Aircraft/767-300/Dialogs/Announcements-dialog.xml");
+                                                              "Aircraft/767-300/Dialogs/announcements-dialog.xml");
         mal.open();
        </script>
       </binding>
