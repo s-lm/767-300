@@ -3,11 +3,17 @@
  <sim>
 	<description>Boeing 767-300</description>
 	<author>Liam Gathercole, Isaias V. Prestes</author>
-        <status>Development</status>
-        <aircraft-version>20100100</aircraft-version>
-        <flight-model>yasim</flight-model>
-        <fuel-fraction>0.75</fuel-fraction>
-        <aero>767-300</aero>
+	<status>alpha</status>
+	<rating>
+		<FDM type="int">2</FDM>
+		<systems type="int">2</systems>
+		<cockpit type="int">1</cockpit>
+		<model type="int">2</model>
+	</rating>
+	<aircraft-version>20100100</aircraft-version>
+	<flight-model>yasim</flight-model>
+	<fuel-fraction>0.75</fuel-fraction>
+	<aero>767-300</aero>
 		
 <startup>
             <splash-texture>Aircraft/767-300/splash.png</splash-texture>
