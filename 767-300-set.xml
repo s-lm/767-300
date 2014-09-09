@@ -1,0 +1,398 @@
+<?xml version="1.0"?>
+<PropertyList>
+ <sim>
+	<description>Boeing 767-300</description>
+	<author>Liam Gathercole, Isaias V. Prestes</author>
+	<status>alpha</status>
+	<rating>
+		<FDM type="int">2</FDM>
+		<systems type="int">2</systems>
+		<cockpit type="int">1</cockpit>
+		<model type="int">2</model>
+	</rating>
+	<aircraft-version>20100100</aircraft-version>
+	<flight-model>yasim</flight-model>
+	<fuel-fraction>0.75</fuel-fraction>
+	<aero>767-300</aero>
+		
+<startup>
+            <splash-texture>Aircraft/767-300/splash.png</splash-texture>
+        </startup>
+
+	<gui>
+			<style>
+			<colors>
+				<splash-screen>
+					<red>0.40</red>
+					<green>0.60</green>
+					<blue>0.80</blue>
+				</splash-screen>
+			</colors>
+			</style>
+		</gui>
+
+		<panel>
+			<path>Aircraft/767-300/Models/2Dpanel/767-ifr-panel.xml</path>
+			<visibility>false</visibility>
+		</panel>
+
+        <model>
+            <path>Aircraft/767-300/Models/767-300.xml</path>
+        </model>
+
+<view n="0">
+            <name>Pilot View</name>
+            <type>lookfrom</type>
+            <internal type="bool">true</internal>
+            <config>
+                <x-offset-m type="double">-0.67</x-offset-m>
+                <y-offset-m type="double">-0.30</y-offset-m>
+                <z-offset-m type="double">-23.50</z-offset-m>
+                <pitch-offset-deg>-13.5</pitch-offset-deg>
+                <limits>
+                    <enabled type="bool">true</enabled> 
+                </limits>
+<default-field-of-view-deg type="double">55.0</default-field-of-view-deg>
+            </config>
+        </view>
+
+  <view n="100">
+    <name>Wing View</name>
+    <type>lookfrom</type>
+    <internal archive="y">false</internal>
+    <config>
+      <from-model type="bool">true</from-model>
+      <from-model-idx type="int">0</from-model-idx>
+      <ground-level-nearplane-m type="double">0.01f</ground-level-nearplane-m>
+      <default-field-of-view-deg type="double">55</default-field-of-view-deg>
+      <pitch-offset-deg>-8.0</pitch-offset-deg>
+      <heading-offset-deg type="double">90</heading-offset-deg> <!-- parallel to the panel -->
+      <x-offset-m archive="y"> -2.65 </x-offset-m> <!--Left/Right-->
+      <y-offset-m archive="y"> 0.66 </y-offset-m> <!--Up/Down-->
+      <z-offset-m archive="y"> 5.80 </z-offset-m> <!--Fdw/Back-->
+    </config>
+  </view>
+
+  <view n="102">
+   <name>Tail view</name>
+   <type>lookfrom</type>
+   <internal type="bool">false</internal>
+   <config>
+    <from-model type="bool">true</from-model>
+    <from-model-idx type="int">0</from-model-idx>
+    <ground-level-nearplane-m type="double">6f</ground-level-nearplane-m>
+    <x-offset-m type="double">0.00</x-offset-m>
+    <y-offset-m type="double">13.20</y-offset-m>
+    <z-offset-m type="double">25.55</z-offset-m>
+    <pitch-offset-deg>-10</pitch-offset-deg>
+    <default-field-of-view-deg type="double">65.0</default-field-of-view-deg>
+   </config>
+   <dynamic>
+    <enabled type="bool">false</enabled>
+   </dynamic>
+  </view>
+
+
+   <airport>
+        <runways>
+            <start-offset-m>25</start-offset-m>
+        </runways>
+    </airport>
+
+        <chase-distance-m>-80</chase-distance-m>
+		
+        <sound>
+            <path>Aircraft/767-300/Sounds/767-sound.xml</path>
+            <switch type = "bool">0</switch>
+  <Evolume>1</Evolume>
+        </sound>
+		
+
+		
+		<!-- Ajuste dos flaps -->
+				<flaps>
+					<setting>0.000</setting>
+					<setting>0.125</setting>
+					<setting>0.250</setting>
+					<setting>0.375</setting>
+					<setting>0.500</setting>
+					<setting>0.625</setting>
+					<setting>0.750</setting>
+					<setting>0.875</setting>
+					<setting>1.000</setting>
+				</flaps>
+
+<!-- O menu de ajuda dessa aeronave -->
+		        <help>
+            <title>Boeing 767-300</title>
+            <key>
+                <name>w/W</name>
+                <desc>Walk forwards/backwards (on interior views only)</desc>
+            </key>
+            <key>
+                <name>Delete</name>
+                <desc>toggle thrust reversers</desc>
+            </key>
+            <key>
+                <name>g/G</name>
+                <desc>raise/lower landing gear</desc>
+            </key>
+            <key>
+                <name>B (shift and b)</name>
+                <desc>toggle parking brakes</desc>
+            </key>
+            <key>
+                <name>pgup/pgdn</name>
+                <desc>throttle increase/decrease</desc>
+            </key>
+            <key>
+                <name>[/]</name>
+                <desc>raise/lower flaps</desc>
+            </key>
+            <key>
+                <name>Ctrl-b</name>
+                <desc>toggle speed brakes</desc>
+            </key>
+            <key>
+                <name>s</name>
+                <desc>hold to start engines</desc>
+            </key>
+   <text>
+=== Takeoff Procedure ===
+Pre-departure:
+1. - Allocate your fuel, passengers and weight under Equipment/fuel and payload
+   - Once passengers and baggage are loaded and weights defined, close the exit doors
+     and ensure stairways are disconnected
+   - Ensure a complete systems checklist is carried out
+   - Airport operations vehicles should be disconnected from around the aircraft
+   - Taxi away from the terminal with a Pushback truck
+   - In poor weather conditions, or crowded airport aprons, A Followme truck should be used if required
+
+Departure:
+2. Select 767-300/Autostart (or hold s) to get the engines running
+3. set your flaps suitably for the conditions and runway length
+4. Release the parking brakes
+5. Apply throttle gently, until at 75% throttle
+6. Rotate at around 140-160kt
+7. Raise landing gear at positive climb
+8. Maintain positive climb
+
+
+Captain Notes:
+- Never reverse from terminal without aid from a pushback. It should be used until the aircraft is on the taxiway.
+- Ensure you allow enough room to manoeuvre around the airport, given that it is a long aircraft.
+- On a short or wet runway, flaps should be set lower on both landing and takeoff, and throttle set to full on takeoff.
+- There are risks of overrunning the runway apron upon landing and takeoff, aswell as overrunning the taxiway corners in the 767. In wet conditions especially; take care and ensure that the correct speed guidelines and height are maintained.
+- During turbulant conditions, The seatbelt warning sound should be initiated by the captain.
+
+=== Cruising ===
+Cruising Speed: Mach 0.83 (907 km/h, 490 knots, 564 mph)
+Service Ceiling: 39,000ft
+
+=== Landing ===
+1. Decend through 200kt, reaching roughly 160kt 1mile before reaching the apron
+2. set flaps accordingly
+3. Land at roughly 140kt, touch down carefully and smoothly at 135kt.
+4. Apply Speedbrakes
+5. Apply thrust reversal and apply throttle
+6. Lower throttle and deactivate thrust reversers
+7. If necessary, Emergency brakes should be used
+</text>
+        </help>
+
+        <menubar>
+            <default>
+   <menu n="100">
+   <item n="10">
+    <label>Pushback</label>
+    <name>pushback</name>
+    <binding>
+     <command>dialog-show</command>
+     <dialog-name>pushback</dialog-name>
+    </binding>
+   </item>
+  </menu>
+                <menu n="100">
+                    <label>767-300</label>
+                    <enabled type="bool">true</enabled>
+                    <item>
+                        <label>Autostart</label>
+                        <binding>
+                            <command>property-toggle</command>
+                            <property>sim/model/start-idling</property>
+                        </binding>
+                    </item>
+                    <item>
+                        <label>Select Livery</label>
+                        <binding>
+                            <command>nasal</command>
+                            <script>aircraft.livery.dialog.toggle()</script>
+                        </binding>
+</item>
+<item>
+      <label>Airport Operations</label>
+      <binding>
+       <command>nasal</command>
+       <script>
+	  var mal = gui.Dialog.new("/sim/gui/dialogs/Boeing747/menu/dialog", 
+                                                              "Aircraft/767-300/Dialogs/airportoperations-dialog.xml");
+        mal.open();
+       </script>
+      </binding>
+     </item>
+
+<item>
+      <label>Announcements</label>
+      <binding>
+       <command>nasal</command>
+       <script>
+	  var mal = gui.Dialog.new("/sim/gui/dialogs/Boeing747/menu/dialog", 
+                                                              "Aircraft/767-300/Dialogs/announcements-dialog.xml");
+        mal.open();
+       </script>
+      </binding>
+     </item>
+
+<item>
+      <label>Doors</label>
+      <binding>
+       <command>nasal</command>
+       <script>
+	  var mal = gui.Dialog.new("/sim/gui/dialogs/Boeing747/menu/dialog", 
+                                                              "Aircraft/767-300/Dialogs/doors-dialog.xml");
+        mal.open();
+       </script>
+      </binding>
+     </item>
+
+</menu>
+            </default>
+        </menubar>
+
+
+
+
+<systems>
+        <path>Aircraft/767-300/Systems/systems.xml</path>
+            <autopilot>
+                <path>Aircraft/767-300/Systems/767-autopilot.xml</path>
+            </autopilot>
+        </systems>
+
+        <instrumentation>
+            <path>Aircraft/767-300/instrumentation.xml</path>
+        </instrumentation>
+
+        <hud>
+            <enable3d>false</enable3d>
+        </hud>
+        <virtual-cockpit archive="y">true</virtual-cockpit>
+        <allow-toggle-cockpit>true</allow-toggle-cockpit>
+
+		<systems>
+			<!-- Autopilot 767-300 -->
+			<autopilot>
+				<path>Aircraft/767-300/Systems/767-autopilot.xml</path>
+			</autopilot>
+        </systems>
+ 
+        <weight n="0">
+            <name>Crew</name>
+            <weight-lb>350</weight-lb> 
+            <max-lb>500</max-lb>
+            <min-lb>350</min-lb>
+        </weight>
+
+        <weight n="1">
+        <!--  325 pax max @ 180 lbs-->
+            <name>Passenger</name>
+            <weight-lb>50000</weight-lb>
+            <max-lb>58500</max-lb>
+            <min-lb>0</min-lb>
+        </weight>
+
+ <weight n="2">
+            <name>Cargo</name>
+            <weight-lb>50000</weight-lb>
+            <max-lb>80000</max-lb>
+            <min-lb>0</min-lb>
+        </weight>
+
+</sim>
+
+ <consumables>
+        <fuel>
+            <tank n="0"><name>LH Main</name></tank>
+            <tank n="1"><name>Center</name></tank>
+            <tank n="2"><name>RH Main</name></tank>
+        </fuel>
+    </consumables>
+
+    <input>
+        <keyboard>
+<key n="119">
+   <name>w</name>
+    <desc>Walk forward toward view</desc>
+    <repeatable>true</repeatable>
+    <binding>
+     <command>nasal</command>
+     <script>walk.walk_about(0.1)</script>
+    </binding>
+  </key>
+  <key n="87">
+   <name>W</name>
+   <desc>Walk backward from view</desc>
+   <repeatable>true</repeatable>
+   <binding>
+    <command>nasal</command>
+    <script>walk.walk_about(-0.1)</script>
+   </binding>
+  </key>  
+<key n="127">
+                <name>Delete</name>
+                <desc>Toggle Reversers</desc>
+                <binding>
+                    <command>property-toggle</command>
+                    <property>controls/engines/engine[0]/reverser</property>
+                </binding>
+                <binding>
+                    <command>property-toggle</command>
+                    <property>controls/engines/engine[1]/reverser</property>
+                </binding>
+            </key>
+        </keyboard>
+    </input>
+
+<instrumentation>
+            <path>Aircraft/767-300/Systems/instrumentation.xml</path>
+        </instrumentation>
+
+
+    <controls>
+        <gear>
+            <brake-parking type="bool">1</brake-parking>
+        </gear>
+<lighting>
+  <strobe>1</strobe>
+  <beacon>1</beacon>
+  <landing-lights>1</landing-lights>
+  <nav-lights>1</nav-lights>
+ </lighting>
+    </controls>
+
+    <nasal>
+        <b777>
+            <file>Aircraft/767-300/Nasal/Electrical.nas</file>
+            <file>Aircraft/767-300/Nasal/flightdirector.nas</file>
+            <file>Aircraft/767-300/Nasal/systems.nas</file>
+		<file>Aircraft/767-300/Nasal/lighting.nas</file>
+        </b777>
+    <walk>
+    <file>Aircraft/767-300/Nasal/walk.nas</file>
+    </walk>
+    <failures>
+    <file>Aircraft/767-300/Nasal/Failures.nas</file>
+   </failures>
+</nasal>
+ 
+</PropertyList>
