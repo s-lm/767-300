@@ -78,7 +78,7 @@
 <!-- Pushback -->
 <model>
  <name>Pushback</name>
- <path>Aircraft\767-300\Models\Pushback\Goldhofert.xml</path>
+ <path>Aircraft/767-300/Models/Pushback/Goldhofert.xml</path>
  
  
  <condition>
