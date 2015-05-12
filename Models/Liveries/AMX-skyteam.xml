@@ -4,7 +4,7 @@
 <sim>
     <model>
         <livery>
-            <name type="string">Aeroméxico SkyTeam</name>
+            <name type="string">Aeromexico SkyTeam</name>
             <texture>Liveries/AMX-skyteam.png</texture>
         </livery>
     </model>
