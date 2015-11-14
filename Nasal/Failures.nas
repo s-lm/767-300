@@ -1,3 +1,4 @@
+# Feces
     # Change multiplier to get different failure probability, for example:
     # 1 = 100% probability for some system to fail every 10 minutes (with 'interval' set to default 600)
     # 0.167 = 1 malfunction per hour

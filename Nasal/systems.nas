@@ -1,487 +1,640 @@
-# 767-300 systems
-#Syd Adams Liam Gathercole
-#
+# BOEING 757-200 SYSTEMS FILE
+#############################
 
+## LIVERY SELECT
+################
 aircraft.livery.init("Aircraft/767-300/Models/Liveries");
-var SndOut = props.globals.getNode("/sim/sound/Ovolume",1);
-var FHmeter = aircraft.timer.new("/instrumentation/clock/flight-meter-sec", 10).stop();
-var fuel_density =0;
 
+## LIGHTS
+#########
 
-#EFIS specific class
-# ie: var efis = EFIS.new("instrumentation/EFIS");
-var EFIS = {
-    new : func(prop1){
-        m = { parents : [EFIS]};
-        m.radio_list=["instrumentation/comm/frequencies","instrumentation/comm[1]/frequencies","instrumentation/nav/frequencies","instrumentation/nav[1]/frequencies"];
-        m.mfd_mode_list=["APP","VOR","MAP","PLAN"];
-        m.eicas_msg=[];
-        m.eicas_msg_red=[];
-        m.eicas_msg_green=[];
-        m.eicas_msg_blue=[];
-        m.eicas_msg_alpha=[];
+# create all lights
+var beacon_switch = props.globals.getNode("controls/switches/beacon", 2);
+var beacon = aircraft.light.new("sim/model/lights/beacon", [0.05, 2], "controls/lighting/beacon");
 
-        m.efis = props.globals.initNode(prop1);
-        m.mfd = m.efis.initNode("mfd");
-        m.pfd = m.efis.initNode("pfd");
-        m.eicas = m.efis.initNode("eicas");
-        m.mfd_mode_num = m.mfd.initNode("mode-num",2,"INT");
-        m.mfd_display_mode = m.mfd.initNode("display-mode",m.mfd_mode_list[2]);
-        m.kpa_mode = m.efis.initNode("inputs/kpa-mode",0,"BOOL");
-        m.kpa_output = m.efis.initNode("inhg-kpa",29.92);
-        m.temp = m.efis.initNode("fixed-temp",0);
-        m.alt_meters = m.efis.initNode("inputs/alt-meters",0,"BOOL");
-        m.fpv = m.efis.initNode("inputs/fpv",0,"BOOL");
-        m.nd_centered = m.efis.initNode("inputs/nd-centered",0,"BOOL");
-        m.mins_mode = m.efis.initNode("inputs/minimums-mode",0,"BOOL");
-        m.minimums = m.efis.initNode("minimums",200,"INT");
-        m.mk_minimums = props.globals.getNode("instrumentation/mk-viii/inputs/arinc429/decision-height");
-        m.wxr = m.efis.initNode("inputs/wxr",0,"BOOL");
-        m.range = m.efis.initNode("inputs/range",0);
-        m.sta = m.efis.initNode("inputs/sta",0,"BOOL");
-        m.wpt = m.efis.initNode("inputs/wpt",0,"BOOL");
-        m.arpt = m.efis.initNode("inputs/arpt",0,"BOOL");
-        m.data = m.efis.initNode("inputs/data",0,"BOOL");
-        m.pos = m.efis.initNode("inputs/pos",0,"BOOL");
-        m.terr = m.efis.initNode("inputs/terr",0,"BOOL");
-        m.rh_vor_adf = m.efis.initNode("inputs/rh-vor-adf",0,"INT");
-        m.lh_vor_adf = m.efis.initNode("inputs/lh-vor-adf",0,"INT");
+var strobe_switch = props.globals.getNode("controls/switches/strobe", 2);
+var strobe = aircraft.light.new("sim/model/lights/strobe", [0.05, 1.3], "controls/lighting/strobe");
 
-        m.radio = m.efis.getNode("radio-mode",1);
-        m.radio.setIntValue(0);
-        m.radio_selected = m.efis.getNode("radio-selected",1);
-        m.radio_selected.setDoubleValue(getprop("instrumentation/comm/frequencies/selected-mhz"));
-        m.radio_standby = m.efis.getNode("radio-standby",1);
-        m.radio_standby.setDoubleValue(getprop("instrumentation/comm/frequencies/standby-mhz"));
+## SOUNDS
+#########
 
-        m.kpaL = setlistener("instrumentation/altimeter/setting-inhg", func m.calc_kpa());
+# seatbelt/no smoking sign triggers
+setlistener("controls/switches/seatbelt-sign", func {
+	props.globals.getNode("sim/sound/seatbelt-sign").setBoolValue(1);
 
-        for(var i=0; i<11; i+=1) {
-        append(m.eicas_msg,m.eicas.initNode("msg["~i~"]/text"," ","STRING"));
-        append(m.eicas_msg_red,m.eicas.initNode("msg["~i~"]/red",0.1 *i));
-        append(m.eicas_msg_green,m.eicas.initNode("msg["~i~"]/green",0.8));
-        append(m.eicas_msg_blue,m.eicas.initNode("msg["~i~"]/blue",0.8));
-        append(m.eicas_msg_alpha,m.eicas.initNode("msg["~i~"]/alpha",1.0));
-        }
+	settimer(func {
+	    props.globals.getNode("sim/sound/seatbelt-sign").setBoolValue(0);
+	}, 2);
+});
+setlistener("controls/switches/no-smoking-sign", func {
+	props.globals.getNode("sim/sound/no-smoking-sign").setBoolValue(1);
 
-    return m;
-    },
-#### convert inhg to kpa ####
-    calc_kpa : func{
-        var kp = getprop("instrumentation/altimeter/setting-inhg");
-        kp= kp * 33.8637526;
-        me.kpa_output.setValue(kp);
-        },
-#### update temperature display ####
-    update_temp : func{
-        var tmp = getprop("/environment/temperature-degc");
-        if(tmp < 0.00){
-            tmp = -1 * tmp;
-        }
-        me.temp.setValue(tmp);
-    },
-#### swap radio freq ####
-    swap_freq : func(){
-        var tmpsel = me.radio_selected.getValue();
-        var tmpstb = me.radio_standby.getValue();
-        me.radio_selected.setValue(tmpstb);
-        me.radio_standby.setValue(tmpsel);
-        me.update_frequencies();
-    },
-#### copy efis freq to radios ####
-    update_frequencies : func(){
-        var fq = me.radio.getValue();
-        setprop(me.radio_list[fq]~"/selected-mhz",me.radio_selected.getValue());
-        setprop(me.radio_list[fq]~"/standby-mhz",me.radio_standby.getValue());
-    },
-#### modify efis radio standby freq ####
-    set_freq : func(fdr){
-        var rd = me.radio.getValue();
-        var frq =me.radio_standby.getValue();
-        var frq_step =0;
-        if(rd >=2){
-            if(fdr ==1)frq_step = 0.05;
-            if(fdr ==-1)frq_step = -0.05;
-            if(fdr ==10)frq_step = 1.0;
-            if(fdr ==-10)frq_step = -1.0;
-            frq += frq_step;
-            if(frq > 118.000)frq -= 10.000;
-            if(frq<108.000) frq += 10.000;
-        }else{
-            if(fdr ==1)frq_step = 0.025;
-            if(fdr ==-1)frq_step = -0.025;
-            if(fdr ==10)frq_step = 1.0;
-            if(fdr ==-10)frq_step = -1.0;
-            frq += frq_step;
-            if(frq > 136.000)frq -= 18.000;
-            if(frq<118.000) frq += 18.000;
-        }
-        me.radio_standby.setValue(frq);
-        me.update_frequencies();
-    },
-
-    set_radio_mode : func(rm){
-        me.radio.setIntValue(rm);
-        me.radio_selected.setDoubleValue(getprop(me.radio_list[rm]~"/selected-mhz"));
-        me.radio_standby.setDoubleValue(getprop(me.radio_list[rm]~"/standby-mhz"));
-    },
-######### Controller buttons ##########
-    ctl_func : func(md,val){
-        if(md=="range")
-        {
-            var rng =getprop("instrumentation/radar/range");
-            if(val ==1){
-                rng =rng * 2;
-                if(rng > 640) rng = 640;
-            }elsif(val =-1){
-                rng =rng / 2;
-                if(rng < 10) rng = 10;
-            }
-            setprop("instrumentation/radar/range",rng);
-            me.range.setValue(rng);
-        }
-        elsif(md=="tfc")
-        {
-            var pos =getprop("instrumentation/radar/switch");
-            if(pos == "on"){
-                pos = "off";
-                
-            }else{
-                pos="on";
-            }
-            setprop("instrumentation/radar/switch",pos);
-        }
-        elsif(md=="dh")
-        {
-            var num =me.minimums.getValue();
-            if(val==0){
-                num=200;
-            }else{
-                num+=val;
-                if(num<0)num=0;
-                if(num>1000)num=1000;
-            }
-        me.minimums.setValue(num);
-        me.mk_minimums.setValue(num);
-        }
-        elsif(md=="display")
-        {
-            var num =me.mfd_mode_num.getValue();
-            num+=val;
-            if(num<0)num=0;
-            if(num>3)num=3;
-            me.mfd_mode_num.setValue(num);
-            me.mfd_display_mode.setValue(me.mfd_mode_list[num]);
-        }
-        elsif(md=="terr")
-        {
-            var num =me.terr.getValue();
-            num=1-num;
-            me.terr.setValue(num);
-        }
-        elsif(md=="arpt")
-        {
-            var num =me.arpt.getValue();
-            num=1-num;
-            me.arpt.setValue(num);
-        }
-        elsif(md=="wpt")
-        {
-            var num =me.wpt.getValue();
-            num=1-num;
-            me.wpt.setValue(num);
-        }
-        elsif(md=="sta")
-        {
-            var num =me.sta.getValue();
-            num=1-num;
-            me.sta.setValue(num);
-        }
-        elsif(md=="wxr")
-        {
-            var num =me.wxr.getValue();
-            num=1-num;
-            me.wxr.setValue(num);
-        }
-        elsif(md=="rhvor")
-        {
-            var num =me.rh_vor_adf.getValue();
-            num+=val;
-            if(num>1)num=1;
-            if(num<-1)num=-1;
-            me.rh_vor_adf.setValue(num);
-        }
-        elsif(md=="lhvor")
-        {
-            var num =me.lh_vor_adf.getValue();
-            num+=val;
-            if(num>1)num=1;
-            if(num<-1)num=-1;
-            me.lh_vor_adf.setValue(num);
-        }
-        elsif(md=="center")
-        {
-            var num =me.nd_centered.getValue();
-            var fnt=[5,8];
-            num = 1 - num;
-            me.nd_centered.setValue(num);
-            setprop("instrumentation/radar/font/size",fnt[num]);
-        }
-    },
-};
-##############################################
-##############################################
-#Engine control class
-# ie: var Eng = Engine.new(engine number);
-var Engine = {
-    new : func(eng_num){
-        m = { parents : [Engine]};
-        m.fdensity = getprop("consumables/fuel/tank/density-ppg");
-        if(m.fdensity ==nil)m.fdensity=6.72;
-        m.eng = props.globals.getNode("engines/engine["~eng_num~"]",1);
-        m.running = m.eng.getNode("running",1);
-        m.running.setBoolValue(0);
-        m.n1 = m.eng.getNode("n1",1);
-        m.n2 = m.eng.getNode("n2",1);
-        m.rpm = m.eng.getNode("rpm",1);
-        m.rpm.setDoubleValue(0);
-        m.throttle_lever = props.globals.getNode("controls/engines/engine["~eng_num~"]/throttle-lever",1);
-        m.throttle_lever.setDoubleValue(0);
-        m.throttle = props.globals.getNode("controls/engines/engine["~eng_num~"]/throttle",1);
-        m.throttle.setDoubleValue(0);
-        m.cutoff = props.globals.getNode("controls/engines/engine["~eng_num~"]/cutoff",1);
-        m.cutoff.setBoolValue(1);
-        m.fuel_out = props.globals.getNode("engines/engine["~eng_num~"]/out-of-fuel",1);
-        m.fuel_out.setBoolValue(0);
-        m.starter = props.globals.getNode("controls/engines/engine["~eng_num~"]/starter",1);
-        m.fuel_pph=m.eng.getNode("fuel-flow_pph",1);
-        m.fuel_pph.setDoubleValue(0);
-        m.fuel_gph=m.eng.getNode("fuel-flow-gph",1);
-        m.hpump=props.globals.getNode("systems/hydraulics/pump-psi["~eng_num~"]",1);
-        m.hpump.setDoubleValue(0);
-    return m;
-    },
-#### update ####
-    update : func{
-        if(me.fuel_out.getBoolValue())me.cutoff.setBoolValue(1);
-        if(!me.cutoff.getBoolValue()){
-        me.rpm.setValue(me.n1.getValue());
-        me.throttle_lever.setValue(me.throttle.getValue());
-        }else{
-            me.throttle_lever.setValue(0);
-            if(me.starter.getBoolValue()){
-                me.spool_up();
-            }else{
-                var tmprpm = me.rpm.getValue();
-                if(tmprpm > 0.0){
-                    tmprpm -= getprop("sim/time/delta-realtime-sec") * 0.5;
-                    me.rpm.setValue(tmprpm);
-                }
-            }
-        }
-    me.fuel_pph.setValue(me.fuel_gph.getValue()*me.fdensity);
-    var hpsi =me.rpm.getValue();
-    if(hpsi>60)hpsi = 60;
-    me.hpump.setValue(hpsi);
-    },
-
-    spool_up : func{
-        if(!me.cutoff.getBoolValue()){
-        return;
-        }else{
-            var tmprpm = me.rpm.getValue();
-            tmprpm += getprop("sim/time/delta-realtime-sec") * 0.5;
-            me.rpm.setValue(tmprpm);
-            if(tmprpm >= me.n1.getValue())me.cutoff.setBoolValue(0);
-        }
-    },
-
-};
-##########################
-
-var Wiper = {
-    new : func {
-        m = { parents : [Wiper] };
-        m.direction = 0;
-        m.delay_count = 0;
-        m.spd_factor = 0;
-        m.node = props.globals.getNode(arg[0],1);
-        m.power = props.globals.getNode(arg[1],1);
-        if(m.power.getValue()==nil)m.power.setDoubleValue(0);
-        m.spd = m.node.getNode("arc-sec",1);
-        if(m.spd.getValue()==nil)m.spd.setDoubleValue(1);
-        m.delay = m.node.getNode("delay-sec",1);
-        if(m.delay.getValue()==nil)m.delay.setDoubleValue(0);
-        m.position = m.node.getNode("position-norm", 1);
-        m.position.setDoubleValue(0);
-        m.switch = m.node.getNode("switch", 1);
-        if (m.switch.getValue() == nil)m.switch.setBoolValue(0);
-        return m;
-    },
-    active: func{
-    if(me.power.getValue()<=5)return;
-    var spd_factor = 1/me.spd.getValue();
-    var pos = me.position.getValue();
-    if(!me.switch.getValue()){
-        if(pos <= 0.000)return;
-        }
-    if(pos >=1.000){
-        me.direction=-1;
-        }elsif(pos <=0.000){
-        me.direction=0;
-        me.delay_count+=getprop("/sim/time/delta-sec");
-        if(me.delay_count >= me.delay.getValue()){
-            me.delay_count=0;
-            me.direction=1;
-            }
-        }
-    var wiper_time = spd_factor*getprop("/sim/time/delta-sec");
-    pos +=(wiper_time * me.direction);
-    me.position.setValue(pos);
-    }
-};
-#####################
-
-var Efis = EFIS.new("instrumentation/efis");
-var LHeng=Engine.new(0);
-var RHeng=Engine.new(1);
-    var wiper = Wiper.new("controls/electric/wipers","systems/electrical/bus-volts");
-
-setlistener("/sim/signals/fdm-initialized", func {
-    SndOut.setDoubleValue(0.15);
-    setprop("/instrumentation/clock/flight-meter-hour",0);
-    setprop("/instrumentation/groundradar/id",getprop("sim/tower/airport-id"));
-    settimer(update_systems,2);
+	settimer(func {
+	    props.globals.getNode("sim/sound/no-smoking-sign").setBoolValue(0);
+	}, 2);
 });
 
-setlistener("/sim/signals/reinit", func {
-    SndOut.setDoubleValue(0.15);
-    setprop("/instrumentation/clock/flight-meter-hour",0);
-    Shutdown();
+## ENGINES
+##########
+
+# explanation of engine properties
+# controls/engines/engine[X]/throttle-lever	When the engine isn't running, this value is constantly set to 0; otherwise, we transfer the value of controls/engines/engine[X]/throttle to it
+# controls/engines/engine[X]/starter		Triggering it fires up the engine
+# engines/engine[X]/running			Set based on the engine state
+# engines/engine[X]/rpm				Used in place of the n1 value for the animations and set dynamically based on the engine state
+# engines/engine[X]/failed			When triggered the engine is "failed" and cannot be restarted
+# engines/engine[X]/on-fire			Self-explanatory
+
+## APU loop function
+var apuLoop = func {
+	if (props.globals.getNode("engines/apu/on-fire").getBoolValue()) {
+	    props.globals.getNode("engines/apu/serviceable").setBoolValue(0);
+	}
+	if (props.globals.getNode("controls/APU/fire-switch").getBoolValue()) {
+	    props.globals.getNode("engines/apu/on-fire").setBoolValue(0);
+	}
+
+	var setting = getprop("controls/APU/off-start-run");
+
+	if (props.globals.getNode("engines/apu/serviceable").getBoolValue() and setting != 0) {
+	    if (setting == 1) {
+		var rpm = getprop("engines/apu/rpm");
+		rpm += getprop("sim/time/delta-realtime-sec") * 20;
+		if (getprop("engines/apu/running")) {
+		    setprop("controls/APU/off-start-run",0);
+		} elsif (rpm >= 100) {
+		    rpm = 100;
+		    setprop("controls/APU/off-start-run",2);
+		}
+		setprop("engines/apu/rpm", rpm);
+	    } elsif (setting == 2 and getprop("engines/apu/rpm") == 100) {
+		props.globals.getNode("engines/apu/running").setBoolValue(1);
+	    }
+	} else {
+	    props.globals.getNode("engines/apu/running").setBoolValue(0);
+
+	    var rpm = getprop("engines/apu/rpm");
+	    rpm -= getprop("sim/time/delta-realtime-sec") * 30;
+	    if (rpm < 0) {
+		rpm = 0;
+	    }
+	    setprop("engines/apu/rpm", rpm);
+	}
+
+#	settimer(apuLoop, 0);
+};
+
+## Engine loop function
+var engineLoop = func(engine_no) {
+ # control the throttles and main engine properties
+	var engineCtlTree = "controls/engines/engine[" ~ engine_no ~ "]/";
+	var engineOutTree = "engines/engine[" ~ engine_no ~ "]/";
+
+	var bleed_air = getprop("systems/pneumatic/bleed-air[" ~ engine_no ~ "]");
+
+ # the FDM switches the running property to true automatically if the cutoff is set to false, this is unwanted
+	if (props.globals.getNode(engineOutTree ~ "running").getBoolValue() and !props.globals.getNode(engineOutTree ~ "started").getBoolValue()) {
+	    props.globals.getNode(engineOutTree ~ "running").setBoolValue(0);
+	}
+
+	if (props.globals.getNode(engineOutTree ~ "on-fire").getBoolValue()) {
+	    props.globals.getNode(engineOutTree ~ "failed").setBoolValue(1);
+	}
+	if (props.globals.getNode(engineCtlTree ~ "cutoff").getBoolValue() or props.globals.getNode(engineOutTree ~ "failed").getBoolValue() or props.globals.getNode(engineOutTree ~ "out-of-fuel").getBoolValue()) {
+	    props.globals.getNode(engineOutTree ~ "started").setBoolValue(0);
+	}
+
+	if (props.globals.getNode(engineCtlTree ~ "starter").getBoolValue() and (bleed_air or getprop("instrumentation/airspeed-indicator/indicated-speed-kt") > 178)) {
+#	    props.globals.getNode(engineCtlTree ~ "cutoff").setBoolValue(0);
+
+	    var rpm = getprop(engineOutTree ~ "rpm");
+	    var stop = getprop(engineOutTree ~ "n1") * 0.66;
+
+	    if (rpm <= stop or !props.globals.getNode(engineCtlTree ~ "cutoff").getBoolValue()) {
+		rpm += getprop("sim/time/delta-realtime-sec") * 3;
+		setprop(engineOutTree ~ "rpm", rpm);
+		setprop(engineOutTree ~ "n2-ind", (2.5 * rpm));
+		if (getprop("sim/engines") == "RR")
+		    setprop(engineOutTree ~ "n3", (2.8 * rpm));
+	    }
+
+	    if (rpm >= getprop(engineOutTree ~ "n1")) {
+		props.globals.getNode(engineCtlTree ~ "starter").setBoolValue(0);
+		props.globals.getNode(engineOutTree ~ "started").setBoolValue(1);
+		props.globals.getNode(engineOutTree ~ "running").setBoolValue(1);
+	    } else {
+		props.globals.getNode(engineOutTree ~ "running").setBoolValue(0);
+	    }
+	} elsif (props.globals.getNode(engineOutTree ~ "running").getBoolValue()) {
+	    if (getprop("autopilot/settings/speed") == "speed-to-ga") {
+		setprop(engineCtlTree ~ "throttle-lever", 1);
+	    } else {
+		setprop(engineCtlTree ~ "throttle-lever", getprop(engineCtlTree ~ "throttle"));
+	    }
+
+	    setprop(engineOutTree ~ "rpm", getprop(engineOutTree ~ "n1"));
+	    setprop(engineOutTree ~ "n2-ind", getprop(engineOutTree ~ "n2"));
+	    if (getprop("sim/engines") == "RR")
+		setprop(engineOutTree ~ "n3", (1.2 * getprop(engineOutTree ~ "n2")));
+	} else {
+	    if (getprop(engineOutTree ~ "rpm") > 0) {
+		var rpm = getprop(engineOutTree ~ "rpm");
+		rpm -= getprop("sim/time/delta-realtime-sec") * 2.5;
+		setprop(engineOutTree ~ "rpm", rpm);
+		setprop(engineOutTree ~ "n2-ind", (2.5 * rpm));
+		if (getprop("sim/engines") == "RR")
+		    setprop(engineOutTree ~ "n3", (2.8 * rpm));
+	    } else {
+		setprop(engineOutTree ~ "rpm", 0);
+		setprop(engineOutTree ~ "n2-ind", 0);
+		if (getprop("sim/engines") == "RR")
+		    setprop(engineOutTree ~ "n3", 0);
+	    }
+
+	    props.globals.getNode(engineOutTree ~ "running").setBoolValue(0);
+	    props.globals.getNode(engineOutTree ~ "started").setBoolValue(0);
+	    setprop(engineCtlTree ~ "throttle-lever", 0);
+	}
+
+#	settimer(func {
+#	    engineLoop(engine_no);
+#	}, 0);
+};
+
+## FLIGHT CONTROLS
+##################
+#var fltctrls = props.globals.getNode("controls/flight",1);
+#var ailnctrl = fltctrls.getNode("aileron",1);
+#var elevctrl = fltctrls.getNode("elevator",1);
+#var rudrctrl = fltctrls.getNode("rudder",1);
+#var ailnpos = fltctrls.initNode("aileron-pos",0,"DOUBLE");
+#var elevpos = fltctrls.initNode("elevator-pos",0,"DOUBLE");
+#var rudrpos = fltctrls.initNode("rudder-pos",0,"DOUBLE");
+#
+#var set_fltctrls = func {
+#    if (getprop("systems/hydraulic/equipment/enable-sfc")) {
+#	ailnpos.setValue(ailnctrl.getValue());
+#	elevpos.setValue(elevctrl.getValue());
+#	rudrpos.setValue(rudrctrl.getValue());
+#    }
+#    settimer(set_fltctrls,0);
+#}
+
+## System updater function, updates each frame
+var update_systems = func {
+	engineLoop(0);
+	engineLoop(1);
+	apuLoop();
+#	set_fltctrls();
+	settimer(update_systems,0);
+}
+
+# start the loop 2 seconds after the FDM initializes
+setlistener("sim/signals/fdm-initialized", func {
+	props.globals.initNode("engines/engine[0]/n2-ind",0,"DOUBLE");
+	props.globals.initNode("engines/engine[1]/n2-ind",0,"DOUBLE");
+	if (getprop("sim/engines") == "RR") {
+	    props.globals.initNode("engines/engine[0]/n3",0,"DOUBLE");
+	    props.globals.initNode("engines/engine[1]/n3",0,"DOUBLE");
+	}
+	settimer(func {
+#	    engineLoop(0);
+#	    engineLoop(1);
+#	    apuLoop();
+#	    set_fltctrls();
+	    update_systems();
+	}, 2);
 });
 
-setlistener("/autopilot/route-manager/route/num", func(wp){
-    var wpt= wp.getValue() -1;
+## Startup/Shutdown functions
+#############################
 
-    if(wpt>-1){
-    setprop("instrumentation/groundradar/id",getprop("autopilot/route-manager/route/wp["~wpt~"]/id"));
-    }else{
-    setprop("instrumentation/groundradar/id",getprop("sim/tower/airport-id"));
-    }
-},1,0);
+var startup = func {
+	setprop("controls/electric/battery-switch", 1);
+	setprop("controls/lighting/nav-lights", 1);
+	setprop("controls/lighting/beacon", 1);
+	setprop("controls/APU/off-start-run", 1);
+	setprop("controls/electric/APU-generator", 1);
+	setprop("controls/electric/engine[0]/generator", 1);
+	setprop("controls/electric/engine[1]/generator", 1);
+	setprop("consumables/fuel/tank[0]/selected",1);
+	setprop("consumables/fuel/tank[1]/selected",1);
+	setprop("consumables/fuel/tank[2]/selected",1);
+	setprop("controls/fuel/tank[0]/pump", 1);
+	setprop("controls/fuel/tank[1]/pump", 1);
+	setprop("controls/fuel/tank[2]/pump", 1);
+	setprop("controls/pneumatic/apu-bleed", 1);
+	setprop("controls/pneumatic/eng-bleed[0]", 1);
+	setprop("controls/pneumatic/eng-bleed[1]", 1);
+	setprop("controls/hydraulic/engine-pump[0]",1);
+	setprop("controls/hydraulic/engine-pump[1]",1);
+	setprop("controls/hydraulic/electric-pump[0]",1);
+	setprop("controls/hydraulic/electric-pump[1]",1);
+	setprop("controls/hydraulic/electric-pump[2]",1);
+	setprop("controls/inertial-reference/position",2);
+	setprop("controls/inertial-reference/position[1]",2);
+	setprop("controls/inertial-reference/position[2]",2);
+	setprop("systems/inertial-reference/mode",2);
+	setprop("systems/inertial-reference/mode[1]",2);
+	setprop("systems/inertial-reference/mode[2]",2);
+	setprop("systems/inertial-reference/alignment",2);
+	setprop("systems/inertial-reference/alignment[1]",2);
+	setprop("systems/inertial-reference/alignment[2]",2);
 
-setlistener("/sim/current-view/internal", func(vw){
-    if(vw.getValue()){
-    SndOut.setDoubleValue(0.3);
-    }else{
-    SndOut.setDoubleValue(1.0);
-    }
-},1,0);
+	if (!getprop("gear/gear[0]/wow"))
+	    setprop("controls/gear/brake-parking",0);
+	
 
-setlistener("/sim/model/start-idling", func(idle){
-    var run= idle.getBoolValue();
-    if(run){
-    Startup();
-    }else{
-    Shutdown();
-    }
-},0,0);
+	var listener1 = setlistener("engines/apu/rpm", func {
+	    if (getprop("engines/apu/rpm") >= 100) {
+		setprop("controls/APU/off-start-run", 2);
+		settimer(func {
+		    setprop("controls/engines/engine[0]/cutoff", 0);
+		    setprop("controls/engines/engine[1]/cutoff", 0);
+		    setprop("controls/engines/engine[0]/starter", 1);
+		    setprop("controls/engines/engine[1]/starter", 1);
+		}, 1.1);
+		removelistener(listener1);
+	    }
+	}, 0, 0);
+	var listener2 = setlistener("engines/engine[0]/rpm", func {
+	    if (getprop("engines/engine[0]/rpm") >= getprop("engines/engine[0]/n1")) {
+		settimer(func {
+		    setprop("controls/APU/off-start-run", 0);
+		    setprop("controls/electric/APU-generator", 0);
+		    setprop("controls/pneumatic/apu-bleed", 0);
+		    setprop("controls/pneumatic/packs/pack-knob", 1);
+		    setprop("controls/pneumatic/packs/pack-knob[1]", 1);
+		}, 2);
+		removelistener(listener2);
+	    }
+	}, 0, 0);
+};
+var shutdown = func {
+	setprop("controls/electric/battery-switch", 0);
+	setprop("controls/electric/engine[0]/generator", 0);
+	setprop("controls/electric/engine[1]/generator", 0);
+	setprop("controls/engines/engine[0]/cutoff", 1);
+	setprop("controls/engines/engine[1]/cutoff", 1);
+	setprop("controls/fuel/tank[0]/pump", 0);
+	setprop("controls/fuel/tank[1]/pump", 0);
+	setprop("controls/fuel/tank[2]/pump", 0);
+	setprop("controls/pneumatic/eng-bleed[0]", 0);
+	setprop("controls/pneumatic/eng-bleed[1]", 0);
+	setprop("controls/hydraulic/engine-pump[0]",0);
+	setprop("controls/hydraulic/engine-pump[1]",0);
+	setprop("controls/hydraulic/electric-pump[0]",0);
+	setprop("controls/hydraulic/electric-pump[1]",0);
+	setprop("controls/hydraulic/electric-pump[2]",0);
+};
 
+# listener to activate these functions accordingly
+setlistener("sim/model/start-idling", func(idle) {
+	var run = idle.getBoolValue();
+	if (run) {
+	    startup();
+	} else {
+	    shutdown();
+	}
+}, 0, 0);
+
+## GEAR
+#######
+
+# prevent retraction of the landing gear when any of the wheels are compressed
 controls.gearDown = func(v) {
-    if (v < 0) {
-        if(!getprop("gear/gear[1]/wow"))setprop("/controls/gear/gear-down", 0);
-    } elsif (v > 0) {
+    var wow = getprop("gear/gear[0]/wow") or getprop("gear/gear[1]/wow") or getprop("gear/gear[2]/wow");
+    if (v < 0 and getprop("systems/hydraulic/equipment/enable-flap")) {
+        # flaps and gear up have the same hydraulic requirements
+        if(!wow) setprop("/controls/gear/gear-down", 0);
+    }
+        elsif (v > 0 and getprop("systems/hydraulic/equipment/enable-gear")) {
       setprop("/controls/gear/gear-down", 1);
     }
 }
 
-stall_horn = func{
-    var alert=0;
-    var kias=getprop("velocities/airspeed-kt");
-    if(kias>150){setprop("sim/sound/stall-horn",alert);return;};
-    var wow1=getprop("gear/gear[1]/wow");
-    var wow2=getprop("gear/gear[2]/wow");
-    if(!wow1 or !wow2){
-        var grdn=getprop("controls/gear/gear-down");
-        var flap=getprop("controls/flight/flaps");
-        if(kias<100){
-            alert=1;
-        }elsif(kias<120){
-            if(!grdn )alert=1;
-        }else{
-            if(flap==0)alert=1;
+setlistener("controls/gear/alt-gear", func (alt) {
+        if (alt.getBoolValue()) {
+                setprop("controls/gear/gear-down",1);
+                setlistener("controls/gear/gear-down", func {
+                    setprop("controls/gear/gear-down",1);
+                },0,0);
         }
+},0,0);
+
+## FLAPS
+########
+
+controls.flapsDown = func(step) {
+    if (getprop("systems/hydraulic/equipment/enable-flap") and getprop("controls/flight/alt-flaps-pos") == -1) {
+        if(step == 0) return;
+        if(props.globals.getNode("/sim/flaps") != nil) {
+                globals.controls.stepProps("/controls/flight/flaps", "/sim/flaps", step);
+                return;
+        }
+        # Hard-coded flaps movement in 3 equal steps:
+        var val = 0.3333334 * step + getprop("/controls/flight/flaps");
+        setprop("/controls/flight/flaps", val > 1 ? 1 : val < 0 ? 0 : val);
     }
-    setprop("sim/sound/stall-horn",alert);
 }
 
-var Startup = func{
-setprop("controls/electric/engine[0]/generator",1);
-setprop("controls/electric/engine[1]/generator",1);
-setprop("controls/electric/engine[0]/bus-tie",1);
-setprop("controls/electric/engine[1]/bus-tie",1);
-setprop("controls/electric/APU-generator",1);
-setprop("controls/electric/avionics-switch",1);
-setprop("controls/electric/battery-switch",1);
-setprop("controls/electric/inverter-switch",1);
-setprop("controls/lighting/instrument-norm",0.8);
-setprop("controls/lighting/nav-lights",1);
-setprop("controls/lighting/beacon",1);
-setprop("controls/lighting/strobe",1);
-setprop("controls/lighting/wing-lights",1);
-setprop("controls/lighting/taxi-lights",1);
-setprop("controls/lighting/logo-lights",1);
-setprop("controls/lighting/cabin-lights",1);
-setprop("controls/lighting/landing-light[0]",1);
-setprop("controls/lighting/landing-light[1]",1);
-setprop("controls/lighting/landing-light[2]",1);
-setprop("controls/engines/engine[0]/cutoff",0);
-setprop("controls/engines/engine[1]/cutoff",0);
-setprop("controls/fuel/tank/boost-pump",1);
-setprop("controls/fuel/tank/boost-pump[1]",1);
-setprop("controls/fuel/tank[1]/boost-pump",1);
-setprop("controls/fuel/tank[1]/boost-pump[1]",1);
-setprop("controls/fuel/tank[2]/boost-pump",1);
-setprop("controls/fuel/tank[2]/boost-pump[1]",1);
+var altflapspos = props.globals.initNode("controls/flight/alt-flaps-pos",-1,"INT");
+var altflap = props.globals.initNode("controls/flight/alt-flaps",0,"INT");
+var altn_flapsDown = func(step) {
+    if (step == 0) return;
+    if (step < 0 and getprop("controls/flight/alt-flaps-pos") == -1) return;
+    if (step > 0 and getprop("controls/flight/alt-flaps-pos") == 6) return;
+    setprop("controls/flight/alt-flaps-pos",getprop("controls/flight/alt-flaps-pos") + step);
+    if (getprop("controls/flight/alt-flaps-pos") > 0) {
+	setprop("controls/flight/alt-flaps",step);
+	settimer(func {setprop("controls/flight/alt-flaps",0);}, 0.15);
+#	globals.controls.flapsDown(step);
+	globals.controls.stepProps("/controls/flight/flaps", "/sim/flaps", step);
+    } elsif (getprop("controls/flight/alt-flaps-pos") == 0) {
+	while (getprop("controls/flight/flaps") != 0)
+	    globals.controls.stepProps("/controls/flight/flaps", "/sim/flaps", -1);
+    }
 }
 
-var Shutdown = func{
-setprop("controls/electric/engine[0]/generator",0);
-setprop("controls/electric/engine[1]/generator",0);
-setprop("controls/electric/engine[0]/bus-tie",0);
-setprop("controls/electric/engine[1]/bus-tie",0);
-setprop("controls/electric/APU-generator",0);
-setprop("controls/electric/avionics-switch",0);
-setprop("controls/electric/battery-switch",0);
-setprop("controls/electric/inverter-switch",0);
-setprop("controls/lighting/instruments-norm",0);
-setprop("controls/lighting/nav-lights",0);
-setprop("controls/lighting/beacon",0);
-setprop("controls/lighting/strobe",0);
-setprop("controls/lighting/wing-lights",0);
-setprop("controls/lighting/taxi-lights",0);
-setprop("controls/lighting/logo-lights",0);
-setprop("controls/lighting/cabin-lights",0);
-setprop("controls/lighting/landing-light[0]",0);
-setprop("controls/lighting/landing-light[1]",0);
-setprop("controls/lighting/landing-light[2]",0);
-setprop("controls/engines/engine[0]/cutoff",1);
-setprop("controls/engines/engine[1]/cutoff",1);
-setprop("controls/fuel/tank/boost-pump",0);
-setprop("controls/fuel/tank/boost-pump[1]",0);
-setprop("controls/fuel/tank[1]/boost-pump",0);
-setprop("controls/fuel/tank[1]/boost-pump[1]",0);
-setprop("controls/fuel/tank[2]/boost-pump",0);
-setprop("controls/fuel/tank[2]/boost-pump[1]",0);
-}
+## SPEEDBRAKES
+##############
 
-var update_systems = func {
-    Efis.calc_kpa();
-    Efis.update_temp();
-    LHeng.update();
-    RHeng.update();
-    wiper.active();
-    stall_horn();
-    settimer(update_systems,0);
-}
+setlistener("controls/flight/speedbrake-lever", func (spoiler) {
+	if (spoiler.getValue() > 1 and !getprop("systems/hydraulic/equipment/enable-spoil")) setprop("controls/flight/speedbrake-lever",1);
+},0,0);
+
+## IRS/INS
+##########
+var IRS = {
+    new : func (n) {
+        m = { parents : [IRS] };
+        m.position = props.globals.initNode("controls/inertial-reference/position["~n~"]",0,"INT");
+        m.mode = props.globals.initNode("systems/inertial-reference/mode["~n~"]",0,"INT");
+        m.align = props.globals.initNode("systems/inertial-reference/alignment["~n~"]",0,"INT");
+        return m;
+    },
+    knob : func (chg) {
+        var pos = me.position.getValue() + chg;
+        if (pos > 3) pos = 3;
+        if (pos < 0) pos = 0;
+        me.position.setValue(pos);
+
+        var spin_time = 300;
+#       if (getprop("systems/inertial-reference/fast")) {
+#               spin_time = 5;
+#       } elsif (getprop("systems/inertial-reference/slow")) {
+#               spin_time = 300;
+#       } elsif (getprop("systems/inertial-reference/real")) {
+#               spin_time = 780;
+#	}
+
+        if (pos == 0) {
+                me.mode.setValue(0);
+                if (me.align.getValue() == 2) {
+                    settimer(func {
+                        if (me.mode.getValue() == 0) me.align.setValue(0);
+                    },17);
+                # spin down time
+                } else {
+                    me.align.setValue(0);
+                }
+        }
+	if (pos == 1) {
+            var tcnt = 0;
+            var irs_align = func (spinup) {
+                settimer(func {
+                    if (me.align.getValue() == 1 and me.position.getValue() != 0 and getprop("controls/gear/brake-parking") and getprop("gear/gear/wow")) {
+                        tcnt += 1;
+                        if (tcnt >= spinup) {
+                            me.align.setValue(2);
+                        } else {
+                            irs_align(spinup);
+                        }
+                    } elsif (me.align.getValue() != 2) {
+                        me.align.setValue(0);
+                    }
+                },1);
+            }
+
+            if (me.align.getValue() == 0) {
+                me.align.setValue(1);
+        # spin up time
+                irs_align(spin_time);
+            } elsif (me.align.getValue() == 2) {
+                settimer(func {
+                    if (me.mode.getValue() != 0 and me.position.getValue() == 1) {
+                        me.align.setValue(1);
+        # spin up time (realignment)
+                        irs_align(30);
+                    } else {
+                        me.position.setValue(me.mode.getValue());
+                    }
+                },1);
+            }
+        }
+        if (pos == 2) {
+                me.mode.setValue(2);
+        }
+        if (pos == 3)
+                me.mode.setValue(3);
+    }
+};
+var IRSl = IRS.new(0);
+var IRSc = IRS.new(1);
+var IRSr = IRS.new(2);
+
+## TRANSPONDER
+##############
+var xpndr = {
+    new : func {
+	m = { parents : [xpndr] };
+	m.knob = props.globals.initNode("instrumentation/transponder/inputs/knob-pos",0,"INT");
+	m.mode = props.globals.getNode("instrumentation/transponder/inputs/knob-mode",1);
+#	m.ident = props.globals.getNode("instrumentation/transponder/inputs/ident-btn",1);
+	m.squawk = props.globals.getNode("instrumentation/transponder/id-code",1);
+	m.digits = [ props.globals.initNode("instrumentation/transponder/inputs/display[0]",0,"INT"),
+		     props.globals.initNode("instrumentation/transponder/inputs/display[1]",0,"INT"),
+		     props.globals.initNode("instrumentation/transponder/inputs/display[2]",0,"INT"),
+		     props.globals.initNode("instrumentation/transponder/inputs/display[3]",0,"INT") ];
+
+	m.d1 = setlistener(m.digits[0], func m.code_update(1),0,0);
+	m.d2 = setlistener(m.digits[1], func m.code_update(1),0,0);
+	m.d3 = setlistener(m.digits[2], func m.code_update(1),0,0);
+	m.d4 = setlistener(m.digits[3], func m.code_update(1),0,0);
+	m.d1234 = setlistener(m.squawk, func m.code_update(0),0,0);
+
+	return m;
+    },
+    update : func {
+	if (getprop("/controls/electric/battery-switch")) {
+	    if (me.knob.getValue() == 0) me.mode.setValue(1);
+	    if (me.knob.getValue() == 1) me.mode.setValue(4);
+	    if (me.knob.getValue() == 2) me.mode.setValue(3);
+	    if (me.knob.getValue() == 3 or me.knob.getValue() == 4)
+		me.mode.setValue(5);
+	} else {
+	    me.mode.setValue(0);
+	}
+    },
+    ident : func {
+	var ident_btn = props.globals.getNode("instrumentation/transponder/inputs/ident-btn",1);
+        if (!(ident_btn.getBoolValue())) {
+            ident_btn.setBoolValue(1);
+            settimer(func { ident_btn.setBoolValue(0); },18);
+        }
+    },
+    code_update : func(n) {
+	if (n == 0) {
+	    var a = int(int(me.squawk.getValue()) / 1000);
+	    var b = int((int(me.squawk.getValue()) - (1000*a)) / 100);
+	    var c = int((int(me.squawk.getValue()) - (1000*a) - (100*b)) / 10);
+	    var d = int(int(me.squawk.getValue()) - (1000*a) - (100*b) - (10*c));
+	    if (a > 7 or a < 0) a = 0;
+	    if (b > 7 or b < 0) b = 0;
+	    if (c > 7 or c < 0) c = 0;
+	    if (d > 7 or d < 0) d = 0;
+
+	    me.digits[0].setValue(a);
+	    me.digits[1].setValue(b);
+	    me.digits[2].setValue(c);
+	    me.digits[3].setValue(d);
+	} else {
+	    var code = (1000 * me.digits[0].getValue()) + (100 * me.digits[1].getValue()) + (10 * me.digits[2].getValue()) + me.digits[3].getValue();
+	    me.squawk.setValue(sprintf ("%04i", code));
+	}
+    },
+};
+var transponder = xpndr.new();
+settimer(func {
+	transponder.update();
+	transponder.code_update(0);
+},2);
+setlistener("/controls/electric/battery-switch", func {
+	transponder.update();
+},0,0);
+setlistener("instrumentation/transponder/inputs/knob-pos", func {
+	transponder.update();
+},0,0);
+
+## INSTRUMENTS
+##############
+
+var instruments =
+ {
+    loop: func {
+	instruments.setHSIBugsDeg();
+	instruments.setwinddisplay();
+
+	settimer(instruments.loop, 0);
+    },
+ # set the rotation of the HSI bugs
+    setHSIBugsDeg: func {
+	var calcBugDeg = func(bug) {
+	    var heading = getprop("orientation/heading-deg");
+	    var bugDeg = 0;
+
+	    while (bug < 0) {
+		bug += 360;
+	    }
+	    while (bug > 360) {
+		bug -= 360;
+	    }
+	    if (bug < 32) {
+		bug += 360;
+	    }
+	    if (heading < 32) {
+		heading += 360;
+	    }
+   # bug is adjusted normally
+	    if (math.abs(heading - bug) < 32) {
+		bugDeg = heading - bug;
+	    } elsif (heading - bug < 0) {
+    # bug is on the far right
+		if (math.abs(heading - bug + 360 >= 180)) {
+		    bugDeg = -32;
+		} elsif (math.abs(heading - bug + 360 < 180)) {
+    # bug is on the far left
+		    bugDeg = 32;
+		}
+	    } else {
+    # bug is on the far right
+		if (math.abs(heading - bug >= 180)) {
+		    bugDeg = -32;
+		} elsif (math.abs(heading - bug < 180)) {
+    # bug is on the far left
+		    bugDeg = 32;
+		}
+	    }
+
+	    return bugDeg;
+	};
+	var true_hdgbug = getprop("orientation/heading-deg") - getprop("orientation/heading-magnetic-deg") + getprop("autopilot/settings/heading-bug-deg");
+	var adfbug1 = getprop("orientation/heading-deg") + getprop("instrumentation/adf/indicated-bearing-deg");
+	var adfbug2 = getprop("orientation/heading-deg") + getprop("instrumentation/adf[1]/indicated-bearing-deg");
+	var radialbug = getprop("orientation/heading-deg") - getprop("orientation/heading-magnetic-deg") + getprop("instrumentation/nav[0]/radials/selected-deg");
+#	setprop("sim/model/B757/heading-bug-deg", calcBugDeg(getprop("autopilot/settings/heading-bug-deg")));
+	setprop("sim/model/B757/heading-bug-deg", calcBugDeg(true_hdgbug));
+	setprop("sim/model/B757/nav1-track-deg", calcBugDeg(radialbug));
+	setprop("sim/model/B757/nav1-bug-deg", calcBugDeg(getprop("instrumentation/nav[0]/heading-deg")));
+	setprop("sim/model/B757/nav2-bug-deg", calcBugDeg(getprop("instrumentation/nav[1]/heading-deg")));
+#	setprop("sim/model/B757/adf-bug-deg", calcBugDeg(getprop("instrumentation/adf/indicated-bearing-deg")));
+	setprop("sim/model/B757/adf1-bug-deg", calcBugDeg(adfbug1));
+	setprop("sim/model/B757/adf2-bug-deg", calcBugDeg(adfbug2));
+    },
+    setwinddisplay: func {
+	var wind = getprop("environment/wind-from-heading-deg");
+	var disp = props.globals.initNode("environment/wind-display",0,"DOUBLE");
+	while (wind < 0) wind+=360;
+	while (wind >= 360) wind-=360;
+	disp.setValue(wind);
+    }
+};
+# start the loop 2 seconds after the FDM initializes
+#setlistener("sim/signals/fdm-initialized", func {
+#	settimer(instruments.loop, 2);
+#});
+
+
+## EFIS CONTROLS
+################
+var modes = ["VOR","APP","MAP","PLAN"];
+var ranges = [10,20,40,80,160,320];
+
+var efis = {
+    new : func (n) {
+	m = { parents : [efis] };
+
+	m.inputs = props.globals.getNode("instrumentation/efis["~n~"]/inputs",1);
+	m.mfd = props.globals.getNode("instrumentation/efis["~n~"]/mfd",1);
+	m.mode = m.mfd.getNode("display-mode",1);
+#	m.ctr = m.inputs.getNode("nd-centered",1);
+	m.range = m.inputs.getNode("range",1);
+	m.nd_plan_wpt = m.inputs.initNode("plan-wpt-index",0,"INT");
+#	m.lh = m.inputs.initNode("lh-vor-adf",1,"INT");
+#	m.rh = m.inputs.initNode("rh-vor-adf",1,"INT");
+
+	m.mode_index = 2;
+	m.range_index = 0;
+
+	return m;
+    },
+    mode_adj : func (i) {
+	me.mode_index += i;
+	if (me.mode_index < 0) me.mode_index = 0;
+	if (me.mode_index > 3) me.mode_index = 3;
+	
+	if (me.mode_index == 3)
+	    me.nd_plan_wpt.setValue(getprop("autopilot/route-manager/current-wp"));
+	me.mode.setValue(modes[me.mode_index]);
+    },
+    range_adj : func (i) {
+	me.range_index += i;
+	if (me.range_index < 0) me.range_index = 0;
+	if (me.range_index > 5) me.range_index = 5;
+
+	me.range.setValue(ranges[me.range_index]);
+    },
+};
+var EFIS_l = efis.new(0);
+var EFIS_r = efis.new(1);
 

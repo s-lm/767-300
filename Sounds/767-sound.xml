@@ -33,7 +33,7 @@
             <z>-3</z>
         </position>
         <reference-dist>200.0</reference-dist>
-        <max-dist>500.0</max-dist>
+        <max-dist>5000.0</max-dist>
     </engine>
 
     <engine>
@@ -63,7 +63,7 @@
             <z>-3</z>
         </position>
         <reference-dist>10.0</reference-dist>
-        <max-dist>30.0</max-dist>
+        <max-dist>2500.0</max-dist>
     </engine>
 
 
@@ -104,7 +104,7 @@
             <z>-3</z>
         </position>
         <reference-dist>10.0</reference-dist>
-        <max-dist>30.0</max-dist>
+        <max-dist>300.0</max-dist>
     </engine>
 
     <engine>
@@ -131,7 +131,7 @@
             <z>-3</z>
         </position>
         <reference-dist>200.0</reference-dist>
-        <max-dist>500.0</max-dist>
+        <max-dist>5000.0</max-dist>
     </engine>
 
     <engine>
@@ -161,7 +161,7 @@
             <z>-3</z>
         </position>
         <reference-dist>10.0</reference-dist>
-        <max-dist>30.0</max-dist>
+        <max-dist>2500.0</max-dist>
     </engine>
 
 
@@ -202,7 +202,7 @@
             <z>-3</z>
         </position>
         <reference-dist>10.0</reference-dist>
-        <max-dist>30.0</max-dist>
+        <max-dist>300.0</max-dist>
     </engine>
 
     <rumble>
@@ -246,7 +246,7 @@
             <z>-5</z>
         </position>
         <reference-dist>5.0</reference-dist>
-        <max-dist>10.0</max-dist>
+        <max-dist>100.0</max-dist>
     </gear1>
 
     <gear1>
@@ -264,7 +264,7 @@
             <z>-5</z>
         </position>
         <reference-dist>10.0</reference-dist>
-        <max-dist>20.0</max-dist>
+        <max-dist>200.0</max-dist>
     </gear1>
 
 <squeal0>
@@ -304,7 +304,7 @@
             <z>-5</z>
         </position>
         <reference-dist>20.0</reference-dist>
-        <max-dist>40.0</max-dist>
+        <max-dist>400.0</max-dist>
     </squeal0>
 
 
@@ -350,7 +350,7 @@
             <z>0</z>
         </position>
         <reference-dist>5.0</reference-dist>
-        <max-dist>10.0</max-dist>
+        <max-dist>100.0</max-dist>
     </flap>
 
     <wind>
@@ -385,7 +385,7 @@
         <max-dist>2.0</max-dist>
     </wind>
 
-    <stall>
+    <!--stall>
         <name>stall</name>
         <mode>looped</mode>
         <path>/Aircraft/767-300/Sounds/stall.wav</path>
@@ -412,7 +412,7 @@
         </position>
         <reference-dist>1.0</reference-dist>
         <max-dist>2.0</max-dist>
-    </stall>
+    </stall-->
 
     <stall>
         <name>stall</name>
@@ -587,7 +587,7 @@
 
 <!-- Cockpit GPWS -->
 
-        <altitude1>
+        <!--altitude1>
             <name>alt-10</name>
             <reference-dist>1.0</reference-dist>
             <max-dist>2.0</max-dist>
@@ -827,9 +827,21 @@
                 <y>0</y>
                 <z>0</z>
             </position>
-        </altitude11>
+        </altitude11-->
 
 <!-- Cabin -->
+
+    <apoff>
+        <name>autopilot disengage</name>
+        <mode>once</mode>
+        <path>Aircraft/767-300/Sounds/autopilot-disengage.wav</path>
+        <condition>
+	    <property>instrumentation/afds/settings/alarm</property>
+        </condition>
+        <volume>
+            <property>sim/sound/effects/volume</property>
+        </volume>
+    </apoff>
 
 
 
