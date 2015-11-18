@@ -10,6 +10,35 @@
         <pitch-deg>-1.0</pitch-deg>
     </offsets>
 
+<!-- Cockpit, with everything included in the flightdeck directed from this file -->
+
+    <model>
+	<name>Cockpit</name>
+	<path>Aircraft/767-300/Models/Flightdeck/Flightdeck.xml</path>
+	<offsets>
+            <x-m>-25.64</x-m>
+            <y-m>0</y-m>
+            <z-m>-2.38</z-m>
+	 </offsets>
+    </model>
+    <animation>
+	<type>select</type>
+	<object-name>WindowsFrontMetal</object-name>
+	<object-name>Glass_front</object-name>
+	<condition>
+	    <not>
+		<property>sim/current-view/internal</property>
+	    </not>
+	</condition>
+    </animation>
+    <animation>
+	<type>select</type>
+	<object-name>Cockpit</object-name>
+	<condition>
+		<property>sim/current-view/internal</property>
+	</condition>
+    </animation>
+
     <!-- Livery System -->
     <nasal>
         <load>
@@ -51,7 +80,8 @@
     <!-- Pushback -->
     <model>
         <name>Pushback</name>
-        <path>Models/Airport/Pushback/Goldhofert.xml</path>
+        <!--path>Models/Airport/Pushback/Goldhofert.xml</path-->
+        <path>Aircraft/757-200/Models/Pushback/pushback.xml</path>
         <condition>
             <less-than-equals>
                 <property>velocities/airspeed-kt</property>
@@ -61,7 +91,8 @@
         <offsets>
             <x-m>-22.0</x-m>
             <y-m>-0.03</y-m>
-            <z-m>-5.85</z-m>
+            <z-m>-6.05</z-m>
+            <pitch-deg>1.0</pitch-deg>
         </offsets>
     </model>
 
@@ -92,6 +123,61 @@
 <!-- Gear Animation -->
 <!-- ############## -->
 
+    <!-- Main gear tilting -->
+    <animation>
+	<type>rotate</type>
+	<object-name>Ltrimpiece7</object-name>
+	<object-name>Ltrimpiece8</object-name>
+        <object-name>LFtrimTire1</object-name>
+        <object-name>LFtrimTire2</object-name>
+        <object-name>LFtrimWhell1</object-name>
+        <object-name>LFtrimWhell2</object-name>
+        <object-name>LBtrimTire1</object-name>
+        <object-name>LBtrimTire2</object-name>
+        <object-name>LBtrimWhell1</object-name>
+        <object-name>LBtrimWhell2</object-name>
+	<object-name>Rtrimpiece7</object-name>
+	<object-name>Rtrimpiece8</object-name>
+        <object-name>RFtrimTire1</object-name>
+        <object-name>RFtrimTire2</object-name>
+        <object-name>RFtrimWhell1</object-name>
+        <object-name>RFtrimWhell2</object-name>
+        <object-name>RBtrimTire1</object-name>
+        <object-name>RBtrimTire2</object-name>
+        <object-name>RBtrimWhell1</object-name>
+        <object-name>RBtrimWhell2</object-name>
+	<!--property>position/gear-agl-m</property-->
+	<property>sim/multiplay/generic/float[4]</property>
+	<interpolation>
+	    <entry>
+		<ind>0</ind>
+		<dep>0</dep>
+	    </entry>
+	    <entry>
+		<ind>0.02</ind>
+		<dep>0</dep>
+	    </entry>
+	    <entry>
+		<ind>0.75</ind>
+		<dep>-20</dep>
+	    </entry>
+	    <entry>
+		<ind>43000</ind>
+		<dep>-20</dep>
+	    </entry>
+	</interpolation>
+        <center>
+            <x-m> 1.035</x-m>
+            <y-m> 0.000</y-m>
+            <z-m>-5.780</z-m>
+        </center>
+        <axis>
+            <x>0</x>
+            <y>1</y>
+            <z>0</z>
+        </axis>
+    </animation>
+
     <!--       Left Gear      -->
     <animation>
         <type>rotate</type>
@@ -120,6 +206,45 @@
         </axis>
     </animation>
 
+    <animation>
+        <type>spin</type>
+        <object-name>LFtrimTire1</object-name>
+        <object-name>LFtrimTire2</object-name>
+        <object-name>LFtrimWhell1</object-name>
+        <object-name>LFtrimWhell2</object-name>
+        <property>gear/gear[1]/rollspeed-ms</property>
+        <factor>-16.213</factor>
+        <center>
+            <x-m> 0.356</x-m>
+            <y-m> 0.000</y-m>
+            <z-m>-5.780</z-m>
+        </center>
+        <axis>
+            <x>0</x>
+            <y>1</y>
+            <z>0</z>
+        </axis>
+    </animation>
+    <animation>
+        <type>spin</type>
+        <object-name>LBtrimTire1</object-name>
+        <object-name>LBtrimTire2</object-name>
+        <object-name>LBtrimWhell1</object-name>
+        <object-name>LBtrimWhell2</object-name>
+        <property>gear/gear[1]/rollspeed-ms</property>
+        <factor>-16.213</factor>
+        <center>
+            <x-m> 1.864</x-m>
+            <y-m> 0.000</y-m>
+            <z-m>-5.780</z-m>
+        </center>
+        <axis>
+            <x>0</x>
+            <y>1</y>
+            <z>0</z>
+        </axis>
+    </animation>
+
     <!-- Right Gear -->
     <animation>
         <type>rotate</type>
@@ -144,6 +269,45 @@
         <axis>
             <x>-1</x>
             <y>0</y>
+            <z>0</z>
+        </axis>
+    </animation>
+
+    <animation>
+        <type>spin</type>
+        <object-name>RFtrimTire1</object-name>
+        <object-name>RFtrimTire2</object-name>
+        <object-name>RFtrimWhell1</object-name>
+        <object-name>RFtrimWhell2</object-name>
+        <property>gear/gear[2]/rollspeed-ms</property>
+        <factor>-16.213</factor>
+        <center>
+            <x-m> 0.356</x-m>
+            <y-m> 0.000</y-m>
+            <z-m>-5.780</z-m>
+        </center>
+        <axis>
+            <x>0</x>
+            <y>1</y>
+            <z>0</z>
+        </axis>
+    </animation>
+    <animation>
+        <type>spin</type>
+        <object-name>RBtrimTire1</object-name>
+        <object-name>RBtrimTire2</object-name>
+        <object-name>RBtrimWhell1</object-name>
+        <object-name>RBtrimWhell2</object-name>
+        <property>gear/gear[1]/rollspeed-ms</property>
+        <factor>-16.213</factor>
+        <center>
+            <x-m> 1.864</x-m>
+            <y-m> 0.000</y-m>
+            <z-m>-5.780</z-m>
+        </center>
+        <axis>
+            <x>0</x>
+            <y>1</y>
             <z>0</z>
         </axis>
     </animation>
@@ -179,6 +343,52 @@
         </axis>
     </animation>
 
+    <animation>
+	<type>rotate</type>
+        <object-name>LTirenoseGear</object-name>
+        <object-name>RTirenoseGear</object-name>
+        <object-name>LWhellnoseGear</object-name>
+        <object-name>RWhellnoseGear</object-name>
+        <object-name>FB3barNG</object-name>
+        <object-name>FB4barNG</object-name>
+        <object-name>FAbarNG</object-name>
+	<condition>
+	    <property>gear/gear[0]/wow</property>
+	</condition>
+	<property>gear/gear[0]/steering-norm</property>
+	<factor>-65</factor>
+        <center>
+            <x-m>-22.100</x-m>
+            <y-m>0.0</y-m>
+            <z-m>-3.550</z-m>
+        </center>
+        <axis>
+            <x>0</x>
+            <y>0</y>
+            <z>1</z>
+        </axis>
+    </animation>
+	
+    <animation>
+        <type>spin</type>
+        <object-name>LTirenoseGear</object-name>
+        <object-name>RTirenoseGear</object-name>
+        <object-name>LWhellnoseGear</object-name>
+        <object-name>RWhellnoseGear</object-name>
+        <property>gear/gear[0]/rollspeed-ms</property>
+        <factor>-22.656</factor>
+        <center>
+            <x-m>-22.118</x-m>
+            <y-m> 0.000</y-m>
+            <z-m>-5.614</z-m>
+        </center>
+        <axis>
+            <x>0</x>
+            <y>1</y>
+            <z>0</z>
+        </axis>
+    </animation>
+
     <!-- Gear disapears when raised -->
 
     <animation>
@@ -186,7 +396,7 @@
         <object-name>right_gear</object-name>
         <object-name>right_gear2</object-name>
         <condition>
-            <property>gear/gear[0]/position-norm</property>
+            <property>gear/gear[2]/position-norm</property>
         </condition>
     </animation>
 
@@ -203,7 +413,7 @@
         <object-name>left_gear</object-name>
         <object-name>left_gear2</object-name>
         <condition>
-            <property>gear/gear[0]/position-norm</property>
+            <property>gear/gear[1]/position-norm</property>
         </condition>
     </animation>
 
@@ -253,10 +463,13 @@
         <path>Aircraft/767-300/Models/lights/landinglight.xml</path>
         <name>NoseGearLandinglight</name>
         <condition>
+	  <and>
             <equals>
                 <property>gear/gear[0]/position-norm</property>
                 <value type="bool">true</value>
             </equals>
+	    <property>controls/lighting/landing-lights[1]</property>
+	  </and>
         </condition>
         <offsets>
             <x-m>-22.40</x-m>
@@ -268,12 +481,15 @@
     <model>
         <path>Aircraft/767-300/Models/lights/landinglight.xml</path>
         <name>LeftWingLandinglight</name>
-        <condition>
+        <!--condition>
             <equals>
                 <property>gear/gear[1]/position-norm</property>
                 <value type="bool">true</value>
             </equals>
-        </condition>
+        </condition-->
+	<condition>
+	    <property>controls/lighting/landing-lights</property>
+	</condition>
         <offsets>
             <x-m>-6.30</x-m>
             <y-m>-3.00</y-m>
@@ -284,12 +500,15 @@
     <model>
         <path>Aircraft/767-300/Models/lights/landinglight.xml</path>
         <name>RightWingLandinglight</name>
-        <condition>
+        <!--condition>
             <equals>
                 <property>gear/gear[2]/position-norm</property>
                 <value type="bool">true</value>
             </equals>
-        </condition>
+        </condition-->
+	<condition>
+	    <property>controls/lighting/landing-lights</property>
+	</condition>
         <offsets>
             <x-m>-6.30</x-m>
             <y-m> 3.00</y-m>
@@ -810,7 +1029,8 @@
  <animation>
   <type>rotate</type>
   <object-name>VRudder</object-name>
-  <property>controls/flight/rudder</property>
+  <!--property>controls/flight/rudder</property-->
+  <property>surface-positions/rudder-pos-norm</property>
   <factor>35</factor>
   <offset-deg>0</offset-deg>   
 	  <axis>
@@ -829,7 +1049,8 @@
  <animation>
   <type>rotate</type>
   <object-name>RHelev</object-name>
-  <property>controls/flight/elevator</property>
+  <!--property>controls/flight/elevator</property-->
+  <property>surface-positions/elevator-pos-norm</property>
   <factor>-10</factor>
   <offset-deg>0</offset-deg>   
 	  <axis>
@@ -845,7 +1066,8 @@
  <animation>
   <type>rotate</type>
   <object-name>LHelev</object-name>
-  <property>controls/flight/elevator</property>
+  <!--property>controls/flight/elevator</property-->
+  <property>surface-positions/elevator-pos-norm</property>
   <factor>10</factor>
   <offset-deg>0</offset-deg>   
 	  <axis>
@@ -865,7 +1087,8 @@
   <animation>
   <type>rotate</type>
   <object-name>aileron_int_L</object-name>
-  <property>controls/flight/aileron</property>
+  <!--property>controls/flight/aileron</property-->
+  <property>surface-positions/left-aileron-pos-norm</property>
   <factor>-30</factor>
   <axis>
      <x1-m> 2.0559</x1-m>
@@ -880,8 +1103,9 @@
  <animation>
   <type>rotate</type>
   <object-name>aileron_int_R</object-name>
-  <property>controls/flight/aileron</property>
-  <factor>-30</factor>
+  <!--property>controls/flight/aileron</property-->
+  <property>surface-positions/right-aileron-pos-norm</property>
+  <factor>30</factor>
   <axis>
      <x1-m> 2.0559</x1-m>
      <y1-m>7.22886</y1-m>
@@ -896,7 +1120,8 @@
   <animation>
   <type>rotate</type>
   <object-name>aileron_ext_L</object-name>
-  <property>controls/flight/aileron</property>
+  <!--property>controls/flight/aileron</property-->
+  <property>surface-positions/left-aileron-pos-norm</property>
   <factor>-30</factor>
   <axis>
      <x1-m> 6.364</x1-m>
@@ -911,8 +1136,9 @@
  <animation>
   <type>rotate</type>
   <object-name>aileron_ext_R</object-name>
-  <property>controls/flight/aileron</property>
-  <factor>-30</factor>
+  <!--property>controls/flight/aileron</property-->
+  <property>surface-positions/right-aileron-pos-norm</property>
+  <factor>30</factor>
   <axis>
      <x1-m> 6.364</x1-m>
      <y1-m>17.8309</y1-m>
@@ -1027,7 +1253,7 @@
  <animation>
   <type>rotate</type>
   <object-name>speedbrakel</object-name>
-  <property>surface-positions/speedbrake-norm</property>
+  <property>surface-positions/speedbrake-pos-norm</property>
   <factor>-75</factor>
   <offset-deg>0</offset-deg>   
 	  <axis>
@@ -1043,7 +1269,7 @@
  <animation>
   <type>rotate</type>
   <object-name>speedbraker</object-name>
-  <property>surface-positions/speedbrake-norm</property>
+  <property>surface-positions/speedbrake-pos-norm</property>
   <factor>75</factor>
   <offset-deg>0</offset-deg>   
 	  <axis>
@@ -1060,7 +1286,7 @@
  <animation>
   <type>rotate</type>
   <object-name>speedbrake_LE</object-name>
-  <property>surface-positions/speedbrake-norm</property>
+  <property>surface-positions/speedbrake-pos-norm</property>
   <factor>-75</factor>
   <offset-deg>0</offset-deg>   
 	  <axis>
@@ -1076,7 +1302,7 @@
  <animation>
   <type>rotate</type>
   <object-name>speedbrake_RE</object-name>
-  <property>surface-positions/speedbrake-norm</property>
+  <property>surface-positions/speedbrake-pos-norm</property>
   <factor>75</factor>
   <offset-deg>0</offset-deg>   
 	  <axis>
@@ -1294,7 +1520,8 @@
     <animation>
         <type>translate</type>
         <object-name>reverser</object-name>
-        <property>surface-positions/reverser-norm</property>
+        <!--property>surface-positions/left-reverser-pos-norm</property-->
+	<property>sim/multiplay/generic/float[5]</property>
         <factor>0.35</factor>
         <axis>
             <x>1.0</x>
