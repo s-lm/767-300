@@ -10,6 +10,18 @@
         <pitch-deg>-1.0</pitch-deg>
     </offsets>
 
+    <model>
+	<name>winglets</name>
+	<path>Aircraft/767-300/Models/winglets.ac</path>
+    </model>
+    <animation>
+	<type>select</type>
+	<object-name>winglets</object-name>
+	<condition>
+	    <property>sim/model/winglets</property>
+	</condition>
+    </animation>
+
 <!-- Cockpit, with everything included in the flightdeck directed from this file -->
 
     <model>
@@ -61,6 +73,8 @@
         <object-name>GDL</object-name>
         <object-name>GDR</object-name>
         <object-name>cargodoor</object-name>
+        <object-name>WingletL</object-name>
+        <object-name>WingletR</object-name>
         <property-base>sim/model/livery</property-base>
         <texture-prop>texture</texture-prop>
         <texture>TFL.png</texture>
@@ -423,9 +437,9 @@
         <path>Aircraft/767-300/Models/lights/GreenLight.xml</path>
         <name>Greenlight</name>
         <offsets>
-            <x-m> 8.80</x-m>
-            <y-m> 23.10</y-m>
-            <z-m> -1.00</z-m>
+            <x-m> 7.00</x-m>
+            <y-m> 23.00</y-m>
+            <z-m> -0.90</z-m>
         </offsets>
     </model>
 
@@ -433,9 +447,9 @@
         <path>Aircraft/767-300/Models/lights/RedLight.xml</path>
         <name>Redlight</name>
         <offsets>
-            <x-m> 8.80</x-m>
-            <y-m>-23.10</y-m>
-            <z-m> -1.00</z-m>
+            <x-m> 7.00</x-m>
+            <y-m>-23.00</y-m>
+            <z-m> -0.90</z-m>
         </offsets>
     </model>
 
@@ -443,7 +457,7 @@
         <path>Aircraft/767-300/Models/lights/flash.xml</path>
         <name>flashright</name>
         <offsets>
-            <x-m> 8.40</x-m>
+            <x-m> 8.00</x-m>
             <y-m> 23.10</y-m>
             <z-m> -1.00</z-m>
         </offsets>
@@ -453,11 +467,34 @@
         <path>Aircraft/767-300/Models/lights/flash.xml</path>
         <name>flashleft</name>
         <offsets>
-            <x-m> 8.40</x-m>
+            <x-m> 8.00</x-m>
             <y-m>-23.10</y-m>
             <z-m> -1.00</z-m>
         </offsets>
     </model>
+
+    <animation>
+	<type>translate</type>
+	<object-name>flashright</object-name>
+	<property>sim/model/winglets</property>
+	<factor>4.2</factor>
+	<axis>
+	    <x>0.9</x>
+	    <y>0.35</y>
+	    <z>1</z>
+	</axis>
+    </animation>
+    <animation>
+	<type>translate</type>
+	<object-name>flashleft</object-name>
+	<property>sim/model/winglets</property>
+	<factor>4.2</factor>
+	<axis>
+	    <x>0.9</x>
+	    <y>-0.35</y>
+	    <z>1</z>
+	</axis>
+    </animation>
 
     <model>
         <path>Aircraft/767-300/Models/lights/landinglight.xml</path>
@@ -520,7 +557,7 @@
         <path>Aircraft/767-300/Models/lights/beacon.xml</path>
         <name>Beaconlight.top</name>
         <offsets>
-            <x-m>0.00</x-m>
+            <x-m>-16.00</x-m>
             <y-m>0.00</y-m>
             <z-m>0.94</z-m>
         </offsets>
@@ -530,7 +567,7 @@
         <path>Aircraft/767-300/Models/lights/beacon.xml</path>
         <name>Beaconlight.bottom</name>
         <offsets>
-            <x-m>-9.50</x-m>
+            <x-m>-2.50</x-m>
             <y-m> 0.00</y-m>
             <z-m>-4.55</z-m>
         </offsets>
@@ -1023,6 +1060,39 @@
         </offsets>
     </model>
  
+<!-- ############# -->
+<!-- Fuel Jettison -->
+<!-- ############# -->
+    <model>
+	<name>FuelDumpL</name>
+	<path>Aircraft/767-300/Models/Effects/fuel-dump.xml</path>
+	<offsets>
+	    <x-m>  7.0</x-m>
+	    <y-m>-17.2</y-m>
+	    <z-m> -1.7</z-m>
+	</offsets>
+    </model>
+    <model>
+	<name>FuelDumpR</name>
+	<path>Aircraft/767-300/Models/Effects/fuel-dump.xml</path>
+	<offsets>
+	    <x-m>  7.0</x-m>
+	    <y-m> 17.2</y-m>
+	    <z-m> -1.7</z-m>
+	</offsets>
+    </model>
+    <animation>
+	<type>select</type>
+	<object-name>FuelDumpL</object-name>
+	<object-name>FuelDumpR</object-name>
+	<condition>
+	    <and>
+		<property>controls/fuel/dump-valve</property>
+		<property>controls/fuel/dump-pump</property>
+	    </and>
+	</condition>
+    </animation>
+
 <!-- ###### -->
 <!-- Rudder -->
 <!-- ###### -->
