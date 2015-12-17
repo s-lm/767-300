@@ -18,7 +18,10 @@
 	<type>select</type>
 	<object-name>winglets</object-name>
 	<condition>
-	    <property>sim/model/winglets</property>
+          <equals>
+	    <property>sim/model/variant</property>
+            <value>1</value>
+          </equals>
 	</condition>
     </animation>
 
@@ -475,7 +478,7 @@
     <animation>
 	<type>translate</type>
 	<object-name>flashright</object-name>
-	<property>sim/model/winglets</property>
+	<property>sim/model/variant</property> <!-- 1 means winglets present -->
 	<factor>4.2</factor>
 	<axis>
 	    <x>0.9</x>
@@ -486,7 +489,7 @@
     <animation>
 	<type>translate</type>
 	<object-name>flashleft</object-name>
-	<property>sim/model/winglets</property>
+	<property>sim/model/variant</property>
 	<factor>4.2</factor>
 	<axis>
 	    <x>0.9</x>
