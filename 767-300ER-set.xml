@@ -10,11 +10,12 @@
 		<cockpit type="int">4</cockpit>
 		<model type="int">2</model>
 	</rating>
+  <variant-of>767-300</variant-of>
 	<aircraft-version>20151000</aircraft-version>
 	<flight-model>yasim</flight-model>
 	<fuel-fraction>0.75</fuel-fraction>
 	<aero>767-300ER</aero>
-		
+
         <model>
             <path>Aircraft/767-300/Models/767-300.xml</path>
 	    <variant type="int">1</variant>
