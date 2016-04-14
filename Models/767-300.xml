@@ -18,10 +18,11 @@
 	<type>select</type>
 	<object-name>winglets</object-name>
 	<condition>
-          <equals>
-	    <property>sim/model/variant</property>
-            <value>1</value>
-          </equals>
+	    <!--property>sim/model/winglets</property-->
+	    <equals>
+		<property>sim/model/variant</property>
+		<value>1</value>
+	    </equals>
 	</condition>
     </animation>
 
@@ -97,7 +98,8 @@
     <!-- Pushback -->
     <model>
         <name>Pushback</name>
-        <path>Models/Airport/Pushback/Goldhofert.xml</path>
+        <!--path>Models/Airport/Pushback/Goldhofert.xml</path-->
+        <path>Aircraft/757-200/Models/Pushback/pushback.xml</path>
         <condition>
             <less-than-equals>
                 <property>velocities/airspeed-kt</property>
@@ -478,7 +480,8 @@
     <animation>
 	<type>translate</type>
 	<object-name>flashright</object-name>
-	<property>sim/model/variant</property> <!-- 1 means winglets present -->
+	<!--property>sim/model/winglets</property-->
+	<property>sim/model/variant</property>
 	<factor>4.2</factor>
 	<axis>
 	    <x>0.9</x>
@@ -489,6 +492,7 @@
     <animation>
 	<type>translate</type>
 	<object-name>flashleft</object-name>
+	<!--property>sim/model/winglets</property-->
 	<property>sim/model/variant</property>
 	<factor>4.2</factor>
 	<axis>
@@ -503,11 +507,12 @@
         <name>NoseGearLandinglight</name>
         <condition>
 	  <and>
-            <equals>
+            <greater-than>
                 <property>gear/gear[0]/position-norm</property>
-                <value type="bool">true</value>
-            </equals>
-	    <property>controls/lighting/landing-lights[1]</property>
+                <value>0.75</value>
+            </greater-than>
+	    <!--property>controls/lighting/landing-lights[1]</property-->
+	    <property>sim/multiplay/generic/int[5]</property>
 	  </and>
         </condition>
         <offsets>
@@ -527,7 +532,8 @@
             </equals>
         </condition-->
 	<condition>
-	    <property>controls/lighting/landing-lights</property>
+	    <!--property>controls/lighting/landing-lights</property-->
+	    <property>sim/multiplay/generic/int[4]</property>
 	</condition>
         <offsets>
             <x-m>-6.30</x-m>
@@ -546,7 +552,8 @@
             </equals>
         </condition-->
 	<condition>
-	    <property>controls/lighting/landing-lights</property>
+	    <!--property>controls/lighting/landing-lights</property-->
+	    <property>sim/multiplay/generic/int[4]</property>
 	</condition>
         <offsets>
             <x-m>-6.30</x-m>
