@@ -7,8 +7,8 @@ by GabrielYV
 <sim>
     <model>
         <livery>
-            <name type="string">SANTA BARBARA</name>
-            <texture>SBA.png</texture>
+            <name type="string">Santa Barbara</name>
+            <texture>Liveries/SBA.png</texture>
         </livery>
     </model>
 </sim>
