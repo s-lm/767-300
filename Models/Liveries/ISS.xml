@@ -5,7 +5,7 @@
     <model>
         <livery>
             <name type="string">Meridiana</name>
-            <texture>ISS.png</texture>
+            <texture>Liveries/ISS.png</texture>
         </livery>
     </model>
 </sim>
